@@ -382,8 +382,8 @@
       
       class ShootingGame extends Game {
         Player player;
-        ArrayList<Enemy> enemies;
-        ArrayList<Bullet> bullets;
+        ArrayList< Enemy > enemies;
+        ArrayList< Bullet > bullets;
         int enemySpawnRate = 60; // 敵の出現率（フレーム）
         int frameCount = 0;
         PFont font;
@@ -394,8 +394,8 @@
       
         ShootingGame() {
           player = new Player();
-          enemies = new ArrayList<Enemy>();
-          bullets = new ArrayList<Bullet>();
+          enemies = new ArrayList< Enemy >();
+          bullets = new ArrayList< Bullet >();
           font = createFont("Arial", 32, true);
         }
       
@@ -710,6 +710,6 @@
       void mousePressed() {
         currentGame.handleMousePressed();
       }
-    </pre>>
+    </pre>
   </body>
 </html>
