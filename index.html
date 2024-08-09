@@ -1,0 +1,712 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    class Game {
+  void setup() {
+  }
+  void draw() {
+  }
+  void handleMousePressed() {
+  }
+  void drawRestartButton() {
+    fill(200);
+    rect(width / 2 - 100, height / 2 + 50, 200, 50);
+    fill(0);
+    textSize(32);
+    text("Restart", width / 2, height / 2 + 75);
+  }
+
+  void drawMainMenuButton() {
+    fill(200);
+    rect(width / 2 - 100, height / 2 + 150, 200, 50);
+    fill(0);
+    textSize(32);
+    text("Main Menu", width / 2, height / 2 + 175);
+  }
+  boolean inRange(float x, float low, float high) {
+    return (low < x && x < high);
+  }
+}
+
+class MainMenu extends Game {
+  PFont font;
+
+  MainMenu() {
+    font = createFont("Arial", 32, true);
+  }
+
+  void draw() {
+    background(173, 255, 47); // 黄緑色
+    textFont(font);
+    textAlign(CENTER, CENTER);
+
+    // ボタンを描画
+    drawButton("Tic-Tac-Toe", width / 4, height / 4);
+    drawButton("Breakout", 3 * width / 4, height / 4);
+    textSize(27);
+    drawButton("Shooting Game", width / 4, 3 * height / 4);
+    textSize(28);
+    drawButton("Prime Checker", 3 * width / 4, 3 * height / 4);
+  }
+
+  void drawButton(String label, float x, float y) {
+    fill(200);
+    rect(x - 100, y - 50, 200, 100);
+    fill(0);
+    text(label, x, y);
+  }
+
+  void handleMousePressed() {
+    if (mouseX > width / 4 - 100 && mouseX < width / 4 + 100 && mouseY > height / 4 - 50 && mouseY < height / 4 + 50) {
+      currentGame = new TicTacToe();
+    } else if (mouseX > 3 * width / 4 - 100 && mouseX < 3 * width / 4 + 100 && mouseY > height / 4 - 50 && mouseY < height / 4 + 50) {
+      currentGame = new Breakout();
+    } else if (mouseX > width / 4 - 100 && mouseX < width / 4 + 100 && mouseY > 3 * height / 4 - 50 && mouseY < 3 * height / 4 + 50) {
+      currentGame = new ShootingGame();
+    } else if (mouseX > 3 * width / 4 - 100 && mouseX < 3 * width / 4 + 100 && mouseY > 3 * height / 4 - 50 && mouseY < 3 * height / 4 + 50) {
+      currentGame = new PrimeChecker();
+    }
+  }
+}
+
+class TicTacToe extends Game {
+  char[][] board;
+  char currentPlayer;
+  String resultMessage;
+  boolean gameOver;
+  PFont font;
+
+  TicTacToe() {
+    board = new char[3][3];
+    currentPlayer = 'O';  // プレイヤーは'O'、システムは'X'
+    resultMessage = "";
+    gameOver = false;
+    font = createFont("Arial", 48, true);
+    initBoard();
+  }
+
+  void initBoard() {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        board[i][j] = ' ';
+      }
+    }
+  }
+
+  void draw() {
+    if (!gameOver) {
+      background(255);
+      for (int i = 0; i < 4; i++) {
+        line(i * width / 3, 0, i * width / 3, height);
+        line(0, i * height / 3, width, i * height / 3);
+      }
+
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+          if (board[i][j] == 'O') {
+            noFill();
+            stroke(255, 0, 0);
+            ellipse(j * width / 3 + width / 6, i * height / 3 + height / 6, width / 6, height / 6);
+            stroke(0);
+          } else if (board[i][j] == 'X') {
+            stroke(0, 0, 255);
+            line(j * width / 3 + width / 12, i * height / 3 + height / 12, (j + 1) * width / 3 - width / 12, (i + 1) * height / 3 - height / 12);
+            line((j + 1) * width / 3 - width / 12, i * height / 3 + height / 12, j * width / 3 + width / 12, (i + 1) * height / 3 - height / 12);
+            stroke(0);
+          }
+        }
+      }
+    } else {
+      if (resultMessage.equals("O wins!")) {
+        background(255, 0, 0);
+      } else if (resultMessage.equals("X wins!")) {
+        background(0, 0, 255);
+      } else if (resultMessage.equals("It's a draw!")) {
+        background(128, 0, 128); 
+      }
+
+      textFont(font);
+      textAlign(CENTER, CENTER);
+      fill(255);
+      text(resultMessage, width / 2, height / 2);
+      drawRestartButton();
+      drawMainMenuButton();
+    }
+  }
+
+  boolean makeMove(int row, int col, char player) {
+    if (board[row][col] == ' ') {
+      board[row][col] = player;
+      return true;
+    }
+    return false;
+  }
+
+  boolean checkWin(char player) {
+    for (int i = 0; i < 3; i++) {
+      if (board[i][0] == player && board[i][1] == player && board[i][2] == player) return true;
+      if (board[0][i] == player && board[1][i] == player && board[2][i] == player) return true;
+    }
+    if (board[0][0] == player && board[1][1] == player && board[2][2] == player) return true;
+    if (board[0][2] == player && board[1][1] == player && board[2][0] == player) return true;
+    return false;
+  }
+
+  void makeRandomMove() {
+    int row, col;
+    do {
+      row = int(random(3));
+      col = int(random(3));
+    } while (!makeMove(row, col, 'X'));
+  }
+
+  void handleMousePressed() {
+    if (gameOver) {
+      if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 && mouseY > height / 2 + 50 && mouseY < height / 2 + 100) {
+        restartGame();
+      } else if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 && mouseY > height / 2 + 150 && mouseY < height / 2 + 200) {
+        currentGame = new MainMenu();
+      }
+      return;
+    }
+
+    int row = mouseY / (height / 3);
+    int col = mouseX / (width / 3);
+    if (makeMove(row, col, currentPlayer)) {
+      if (checkWin(currentPlayer)) {
+        resultMessage = currentPlayer + " wins!";
+        gameOver = true;
+      } else if (isBoardFull()) {
+        resultMessage = "It's a draw!";
+        gameOver = true;
+      } else {
+        makeRandomMove();
+        if (checkWin('X')) {
+          resultMessage = "X wins!";
+          gameOver = true;
+        }
+      }
+    }
+  }
+
+  boolean isBoardFull() {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        if (board[i][j] == ' ') return false;
+      }
+    }
+    return true;
+  }
+
+  void restartGame() {
+    initBoard();
+    resultMessage = "";
+    gameOver = false;
+    currentPlayer = 'O';
+  }
+}
+
+class Breakout extends Game {
+  Object[] block;
+  Object ball, player;
+  float lenW, lenH, start, end;
+  boolean gameClear;
+
+  Breakout() {
+    setup();
+  }
+
+  void setup() {
+    gameClear = false;
+    block = new Object[24];
+    int col = 6, row = block.length/col;
+    float lenW = width/col;
+    float lenH = height/block.length;
+
+    for (int i = 0; i<row; i++) {
+      for (int j = 0; j<col; j++) {
+        block[col*i+j] = new Block(j*lenW, i*lenH, lenW, lenH);
+      }
+    }
+    player = new Player(width/2, height*3/4.0, lenW, lenH);
+    ball = new Ball(width/2, height/2, lenH, lenH);
+    start = millis();
+  }
+
+  void draw() {
+    background(255);
+    if (gameClear || ball.y>height) {
+      if (gameClear) {
+        text("time:"+(end-start)/1000.0+"s", width/2, height/3);
+      } else {
+        text("GAMEOVER", width/2, height/3);
+      }
+      drawRestartButton();
+      drawMainMenuButton();
+    } else {
+      for (int i = 0; i < block.length; i++) {
+        block[i].display();
+      }
+      player.display();
+      ball.display();
+      ball.move();
+      checkBlock();
+      playerCheck();
+    }
+  }
+
+  void checkBlock() {
+    int count = 0;
+    for (int i = 0; i<block.length; i++) {
+      if (!block[i].isTouched) {
+        if (inRange(ball.x+ball.w, block[i].x, block[i].x+block[i].w) && inRange(ball.y, block[i].y, block[i].y+block[i].h)) {
+          block[i].isTouched=true;
+          ball.dx*=-1;
+          break;
+        }
+        if (inRange(ball.x, block[i].x, block[i].x+block[i].w) && inRange(ball.y+ball.h, block[i].y, block[i].y+block[i].h)) {
+          block[i].isTouched=true;
+          ball.dy*=-1;
+          break;
+        }
+        if (inRange(ball.x-ball.w, block[i].x, block[i].x+block[i].w) && inRange(ball.y, block[i].y, block[i].y+block[i].h)) {
+          block[i].isTouched=true;
+          ball.dx*=-1;
+          break;
+        }
+        if (inRange(ball.x, block[i].x, block[i].x+block[i].w) && inRange(ball.y-ball.h, block[i].y, block[i].y+block[i].h)) {
+          block[i].isTouched=true;
+          ball.dy*=-1;
+          break;
+        }
+      } else {
+        count++;
+        if (count==block.length) {
+          gameClear=true;
+          end=millis();
+        }
+      }
+    }
+  }
+
+  void playerCheck() {
+    if (inRange(ball.x, mouseX, mouseX+player.w) && inRange(ball.y+ball.h, player.y, player.y+player.h)) {
+      float accRate = ((ball.x-(mouseX+player.w/2))/player.w);
+      ball.dx=10.0*accRate;
+      ball.dy+=abs(accRate);
+      ball.dy*=-1;
+      ball.y=player.y-(ball.h+1.0);
+    }
+  }
+
+  void restartGame() {
+    setup();
+  }
+
+  void handleMousePressed() {
+    if (gameClear || ball.y>height) {
+      if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 && mouseY > height / 2 + 50 && mouseY < height / 2 + 100) {
+        restartGame();
+      } else if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 && mouseY > height / 2 + 150 && mouseY < height / 2 + 200) {
+        currentGame = new MainMenu();
+      }
+    }
+  }
+  class Object {
+    float x, y, w, h, dx, dy;
+    boolean isTouched;
+    Object(float x0, float y0, float w0, float h0) {
+      x = x0;
+      y = y0;
+      w = w0;
+      h = h0;
+      fill(255);
+    }
+    void display() {
+    };
+    void move() {
+    };
+  }
+
+  class Block extends Object {
+    Block(float x0, float y0, float w0, float h0) {
+      super(x0, y0, w0, h0);
+      isTouched=false;
+    }
+
+    void display() {
+      if (!isTouched) {
+        rect(x, y, w, h);
+      }
+    }
+  }
+
+  class Player extends Object {
+    Player(float x0, float y0, float w0, float h0) {
+      super(x0, y0, w0, h0);
+    }
+    void display() {
+      rect(mouseX, y, w, h);
+    }
+  }
+
+  class Ball extends Object {
+    Ball(float x0, float y0, float w0, float h0) {
+      super(x0, y0, w0, h0);
+      dx = 5.0;
+      dy = -5.0;
+    }
+
+    void display() {
+      ellipse(x, y, w, h);
+    }
+
+    void move() {
+      x+=dx;
+      y+=dy;
+
+      if (x < w/2 || width-w/2 < x) {
+        dx*=-1;
+      }
+      if (y < h/2) {
+        dy*=-1;
+      }
+    }
+  }
+}
+
+class ShootingGame extends Game {
+  Player player;
+  ArrayList<Enemy> enemies;
+  ArrayList<Bullet> bullets;
+  int enemySpawnRate = 60; // 敵の出現率（フレーム）
+  int frameCount = 0;
+  PFont font;
+  int life = 3; // ライフの初期値
+  int maxEnemies = 15; // 敵の最大数
+  boolean gameOverFlag = false; // ゲームオーバーかどうかのフラグ
+  boolean gameClearFlag = false; // ゲームクリアかどうかのフラグ
+
+  ShootingGame() {
+    player = new Player();
+    enemies = new ArrayList<Enemy>();
+    bullets = new ArrayList<Bullet>();
+    font = createFont("Arial", 32, true);
+  }
+
+  void draw() {
+    if (gameOverFlag) {
+      background(255); 
+      fill(255, 0, 0);
+      textAlign(CENTER, CENTER);
+      textSize(64);
+      text("Game Over", width / 2, height / 2);
+      drawRestartButton();
+      drawMainMenuButton();
+      return;
+    } else if (gameClearFlag) {
+      background(255);
+      fill(0, 255, 0);
+      textAlign(CENTER, CENTER);
+      textSize(64);
+      text("Game Clear!", width / 2, height / 2);
+      drawRestartButton();
+      drawMainMenuButton();
+      return;
+    }
+
+    background(0);
+    player.display();
+    player.move();
+
+    fill(255);
+    textFont(font);
+    text("Life: " + life, 50, 50);
+
+    // 敵の出現
+    if (frameCount % enemySpawnRate == 0 && enemies.size() < maxEnemies) {
+      enemies.add(new Enemy());
+    }
+    frameCount++;
+
+    // 弾の描画と移動
+    for (int i = bullets.size() - 1; i >= 0; i--) {
+      Bullet b = bullets.get(i);
+      b.move();
+      b.display();
+      if (b.isOffScreen()) {
+        bullets.remove(i);
+      }
+    }
+
+    // 敵の描画と移動
+    for (int i = enemies.size() - 1; i >= 0; i--) {
+      Enemy e = enemies.get(i);
+      e.move();
+      e.display();
+      if (e.isOffScreen()) {
+        enemies.remove(i);
+        life--;
+        if (life <= 0) {
+          gameOver();
+        }
+      }
+    }
+
+    // 弾と敵の衝突判定
+    for (int i = bullets.size() - 1; i >= 0; i--) {
+      Bullet b = bullets.get(i);
+      for (int j = enemies.size() - 1; j >= 0; j--) {
+        Enemy e = enemies.get(j);
+        if (b.hits(e)) {
+          bullets.remove(i);
+          enemies.remove(j);
+          break;
+        }
+      }
+    }
+
+    // 敵がいなくなったときにゲームクリア
+    if (enemies.size() == 0 && life > 0) {
+      gameClear();
+    }
+  }
+
+  void handleMousePressed() {
+    if (!gameOverFlag && !gameClearFlag) {
+      bullets.add(new Bullet(player.x, player.y));
+    } else {
+      if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 && mouseY > height / 2 + 50 && mouseY < height / 2 + 100) {
+        restartGame();
+      } else if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 && mouseY > height / 2 + 150 && mouseY < height / 2 + 200) {
+        currentGame = new MainMenu();
+      }
+    }
+  }
+
+  void gameOver() {
+    gameOverFlag = true; // ゲームオーバーのフラグを設定
+  }
+
+  void gameClear() {
+    gameClearFlag = true; // ゲームクリアのフラグを設定
+  }
+
+  void restartGame() {
+    gameOverFlag = false;
+    gameClearFlag = false;
+    player = new Player();
+    enemies = new ArrayList<Enemy>();
+    bullets = new ArrayList<Bullet>();
+    life = 3; // ライフの初期値をリセット
+    frameCount = 0;
+  }
+
+  class Player {
+    float x, y;
+    float size = 50;
+    float speed = 10;
+
+    Player() {
+      x = width / 8;
+      y = height / 2;
+    }
+
+    void display() {
+      fill(255);
+      rect(x, y, size, size);
+    }
+
+    void move() {
+      if (keyPressed) {
+        if (keyCode == UP) {
+          y -= speed;
+        } else if (keyCode == DOWN) {
+          y += speed;
+        }
+      }
+    }
+  }
+
+  class Enemy {
+    float x, y;
+    float size = 50;
+    float speed = 5;
+
+    Enemy() {
+      x = width;
+      y = random(height);
+    }
+
+    void display() {
+      fill(255, 0, 0);
+      rect(x, y, size, size);
+    }
+
+    void move() {
+      x -= speed;
+    }
+
+    boolean isOffScreen() {
+      return x < -size / 2;
+    }
+  }
+
+  class Bullet {
+    float x, y;
+    float size = 10;
+    float speed = 10;
+
+    Bullet(float x, float y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    void display() {
+      fill(255, 255, 0);
+      ellipse(x, y, size, size);
+    }
+
+    void move() {
+      x += speed;
+    }
+
+    boolean isOffScreen() {
+      return x > width + size / 2;
+    }
+
+    boolean hits(Enemy e) {
+      return x > e.x && x < e.x + e.size && y > e.y && y < e.y + e.size;
+    }
+  }
+}
+
+class PrimeChecker extends Game {
+  int rand, yet = -1, chooseCircle;
+  int[] divFactorArray = new int[8];//divFactorの最大値8
+  String formula;
+
+  PrimeChecker() {
+    setup();
+  }
+
+  void setup() {
+    rand=generateRandom();
+    divFactorArray=getDivFactorArray(rand);
+    formula = "";
+    chooseCircle = yet;
+    for (int i = 0; i<divFactorArray.length; i++) {
+      formula+=divFactorArray[i];
+      if (divFactorArray[i+1]!=0) {
+        formula+="×";
+      } else {
+        break;
+      }
+    }
+  }
+
+  int generateRandom() {
+    int low = 2, high = 4, reCount = 0, r = 0;
+    while (r%2==0) {
+      if (reCount%2==0) {
+        r = int(random(pow(10, low), pow(10, low+1)));
+      } else {
+        r = int(random(pow(10, high-1), pow(10, high)));
+      }
+      reCount++;
+    }
+    return r;
+  }
+
+  int[] getDivFactorArray(int rand) {
+    int r = rand, div = 3, factorId = 0;
+    int[] divFactor = new int[8];//divFactorの最大値8
+    while (div<rand) {
+      if (r%div==0) {
+        divFactor[factorId] = div;
+        factorId++;
+        r/=div;
+      } else {
+        div++;
+      }
+    }
+    return divFactor;
+  }
+
+  boolean isPrime(int[] array) {
+    return array[0]==0;
+  }
+
+  void restartGame() {
+    setup();
+  }
+
+  void draw() {
+    background(255); 
+    if (chooseCircle==yet) {
+      text(rand+" : primeNumber ?", width/2, height/3);
+      line(width/2, height/2, width/2, height);
+      noFill();
+      ellipse(width/4, height*3/4, width/4, height/4);
+      line(width*5/8, height*5/8, width*7/8, height*7/8);
+      line(width*5/8, height*7/8, width*7/8, height*5/8);
+    } else {
+      if (isPrime(divFactorArray)) {
+        if (chooseCircle==1) {//マルを選んだ時
+          text("That's TRUE!!!!!!!!!!!!!!!!!", width/2, height/8);
+        } else {
+          text("FALSE", width/2, height/8);
+        }
+        text(rand+" : primeNumber", width/2, height/4);
+      } else {
+        if (chooseCircle==0) {//バツを選んだ時
+          text("That's TRUE!!!!!!!!!!!!!!!!!", width/2, height/8);
+        } else {
+          text("FALSE", width/2, height/8);
+        }
+        text(rand+" : NOT primeNumber", width/2, height/4);
+        text(rand+" = "+formula, width/2, height*3/8);
+      }
+      drawRestartButton();
+      drawMainMenuButton();
+    }
+  }
+
+  void handleMousePressed() {
+    if (chooseCircle==yet) {
+      if (inRange(mouseY, height/2, height)) {
+        if (inRange(mouseX, 0, width/2)) {
+          chooseCircle=1;
+        } else if (inRange(mouseX, width/2, width)) {
+          chooseCircle=0;
+        }
+      }
+    } else {
+      if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 && mouseY > height / 2 + 50 && mouseY < height / 2 + 100) {
+        restartGame();
+      } else if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 && mouseY > height / 2 + 150 && mouseY < height / 2 + 200) {
+        currentGame = new MainMenu();
+      }
+    }
+  }
+}
+
+Game currentGame;
+
+void setup() {
+  size(800, 800);
+  currentGame = new MainMenu();
+}
+
+void draw() {
+  currentGame.draw();
+}
+
+void mousePressed() {
+  currentGame.handleMousePressed();
+}
+  </body>
+</html>
