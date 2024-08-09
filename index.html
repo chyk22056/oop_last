@@ -1,24 +1,26 @@
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="./style.css" />
-  </head>
-  <body>
+</head>
+
+<body>
     <pre>
-      class Game {
-      void setup() {
-      }
-      void draw() {
-      }
-      void handleMousePressed() {
-      }
-      void drawRestartButton() {
-        fill(200);
-        rect(width / 2 - 100, height / 2 + 50, 200, 50);
-        fill(0);
-        textSize(32);
-        text("Restart", width / 2, height / 2 + 75);
-      }
+class Game {
+  void setup() {
+  }
+  void draw() {
+  }
+  void handleMousePressed() {
+  }
+  void drawRestartButton() {
+    fill(200);
+    rect(width / 2 - 100, height / 2 + 50, 200, 50);
+    fill(0);
+    textSize(32);
+    text("Restart", width / 2, height / 2 + 75);
+  }
 
   void drawMainMenuButton() {
     fill(200);
@@ -227,8 +229,8 @@ class Breakout extends Game {
     float lenW = width/col;
     float lenH = height/block.length;
 
-    for (int i = 0; i<row; i++) {
-      for (int j = 0; j<col; j++) {
+    for (int i = 0; i < row; i++) {
+      for (int j = 0; j < col; j++) {
         block[col*i+j] = new Block(j*lenW, i*lenH, lenW, lenH);
       }
     }
@@ -261,7 +263,7 @@ class Breakout extends Game {
 
   void checkBlock() {
     int count = 0;
-    for (int i = 0; i<block.length; i++) {
+    for (int i = 0; i < block.length; i++) {
       if (!block[i].isTouched) {
         if (inRange(ball.x+ball.w, block[i].x, block[i].x+block[i].w) && inRange(ball.y, block[i].y, block[i].y+block[i].h)) {
           block[i].isTouched=true;
@@ -599,7 +601,7 @@ class PrimeChecker extends Game {
     divFactorArray=getDivFactorArray(rand);
     formula = "";
     chooseCircle = yet;
-    for (int i = 0; i<divFactorArray.length; i++) {
+    for (int i = 0; i < divFactorArray.length; i++) {
       formula+=divFactorArray[i];
       if (divFactorArray[i+1]!=0) {
         formula+="×";
@@ -625,7 +627,7 @@ class PrimeChecker extends Game {
   int[] getDivFactorArray(int rand) {
     int r = rand, div = 3, factorId = 0;
     int[] divFactor = new int[8];//divFactorの最大値8
-    while (div<rand) {
+    while (div < rand) {
       if (r%div==0) {
         divFactor[factorId] = div;
         factorId++;
@@ -710,5 +712,6 @@ void mousePressed() {
   currentGame.handleMousePressed();
 }
     </pre>
-  </body>
+</body>
+
 </html>
